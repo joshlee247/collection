@@ -5,17 +5,21 @@ const currency = new Intl.NumberFormat("en-US", {
   currency: "USD",
 })
 
-const compactCurrency = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  notation: "compact",
-  maximumFractionDigits: 1,
-})
+function trim(n: number) {
+  return n.toFixed(1).replace(/\.0$/, "")
+}
+
+// Intl's compact notation differs between Node and browsers, which breaks hydration.
+export function compactMoney(value: number) {
+  const sign = value < 0 ? "−" : ""
+  const n = Math.abs(value)
+  if (n >= 1e6) return `${sign}$${trim(n / 1e6)}M`
+  if (n >= 1e3) return `${sign}$${trim(n / 1e3)}k`
+  return `${sign}$${Math.round(n)}`
+}
 
 export function formatMoney(value: number, { compact = false } = {}) {
-  return compact && Math.abs(value) >= 10000
-    ? compactCurrency.format(value)
-    : currency.format(value)
+  return compact && Math.abs(value) >= 10000 ? compactMoney(value) : currency.format(value)
 }
 
 export function formatCount(count: number, noun: string, plural = `${noun}s`) {

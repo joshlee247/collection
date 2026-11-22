@@ -1,5 +1,6 @@
 import { act, render, screen, waitFor, within } from "@testing-library/react"
 import { createAgent } from "@ui-sdk/react/agent"
+import { OverlayHost } from "@ui-sdk/react/overlays"
 import { beforeEach, expect, test, vi } from "vitest"
 import type { PortfolioView } from "@/lib/queries"
 import type { Item } from "@/lib/types"
@@ -68,6 +69,7 @@ const view: PortfolioView = {
     { ...item({ id: "etb", name: "Crown Zenith", sealedType: "Elite Trainer Box" }), location: "Bin 1" },
   ],
   totals: { count: 3, cost: 0, value: 1440, byKind: { card: 0, graded: 0, sealed: 3 } },
+  insights: { entries: 2, unpriced: 2, best: null, top: null },
   options: [
     { value: "sealed", label: "Sealed", depth: 0 },
     { value: "bin-1", label: "Sealed / Bin 1", depth: 1 },
@@ -83,6 +85,7 @@ function renderScreen() {
     <DialogsProvider>
       <PortfolioScreen view={view} />
       <ItemDialog options={view.options} />
+      <OverlayHost />
     </DialogsProvider>
   )
 }

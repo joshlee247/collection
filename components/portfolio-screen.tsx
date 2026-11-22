@@ -13,7 +13,6 @@ import {
 import { Switch, SwitchThumb } from "@ui-sdk/react/switch"
 import { toast } from "@ui-sdk/react/toast"
 import {
-  ChevronRightIcon,
   EllipsisIcon,
   FolderPlusIcon,
   PencilIcon,
@@ -22,7 +21,6 @@ import {
   SearchIcon,
   Trash2Icon,
 } from "lucide-react"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useMemo, useState } from "react"
 import { deletePortfolio } from "@/app/actions"
@@ -31,6 +29,7 @@ import type { PortfolioView } from "@/lib/queries"
 import { ITEM_KINDS, KIND_LABELS, type ItemKind } from "@/lib/types"
 import { useDialogs } from "./dialogs-context"
 import { ItemRow } from "./item-row"
+import { NewPortfolioTile } from "./dashboard-actions"
 import { PortfolioCard } from "./portfolio-card"
 import { QrDialog } from "./qr-dialog"
 import { StatGrid } from "./stats"
@@ -82,34 +81,14 @@ export function PortfolioScreen({ view }: { view: PortfolioView }) {
     dialogs.item.open({ payload: { portfolioId: portfolio.id } })
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 py-6 sm:px-6 lg:py-10">
-      <header className="flex flex-col gap-4">
-        <nav aria-label="Breadcrumb" className="no-print">
-          <ol className="m-0 flex list-none flex-wrap items-center gap-1 p-0 text-sm text-muted-fg">
-            <li>
-              <Link href="/" className="text-muted-fg no-underline hover:text-fg">
-                Overview
-              </Link>
-            </li>
-            {trail.map((p) => (
-              <li key={p.id} className="flex items-center gap-1">
-                <ChevronRightIcon aria-hidden="true" className="size-3.5" />
-                <Link href={`/p/${p.id}`} className="text-muted-fg no-underline hover:text-fg">
-                  {p.name}
-                </Link>
-              </li>
-            ))}
-          </ol>
-        </nav>
-
+    <div className="flex flex-col gap-8 px-4 py-4 lg:px-8 lg:py-6">
+      <header>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="min-w-0">
-            <h1 className="m-0 text-3xl font-semibold tracking-tight sm:text-4xl">
-              {portfolio.name}
-            </h1>
-            {portfolio.description && (
-              <p className="m-0 mt-1 max-w-prose text-muted-fg">{portfolio.description}</p>
-            )}
+            <h1 className="font-display m-0 text-4xl font-semibold tracking-tight sm:text-5xl">{portfolio.name}</h1>
+            <p className="m-0 mt-2 max-w-prose text-base text-muted-fg">
+              {portfolio.description || `${formatCount(totals.count, "item")} stored here`}
+            </p>
           </div>
           <div className="no-print flex flex-wrap items-center gap-2">
             <QrDialog portfolio={portfolio} path={path} />
@@ -156,25 +135,26 @@ export function PortfolioScreen({ view }: { view: PortfolioView }) {
         </div>
       </header>
 
-      <StatGrid totals={totals} />
+      <StatGrid totals={totals} insights={view.insights} scope={portfolio.name} />
 
       {children.length > 0 && (
-        <section aria-labelledby="inside-heading" className="flex flex-col gap-3">
-          <h2 id="inside-heading" className="m-0 text-lg font-semibold tracking-tight">
+        <section aria-labelledby="inside-heading" className="flex flex-col gap-4">
+          <h2 id="inside-heading" className="font-display m-0 text-2xl font-semibold">
             Inside {portfolio.name}
           </h2>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-6 @2xl/main:grid-cols-3 @5xl/main:grid-cols-4">
             {children.map((child) => (
               <PortfolioCard key={child.id} portfolio={child} />
             ))}
+            <NewPortfolioTile parentId={portfolio.id} />
           </div>
         </section>
       )}
 
-      <section aria-labelledby="items-heading" className="flex flex-col gap-4">
+      <section aria-labelledby="items-heading" className="glass flex flex-col gap-4 rounded-[1.75rem] p-4 sm:p-6">
         <div className="flex flex-col gap-3">
           <div className="flex items-baseline justify-between gap-3">
-            <h2 id="items-heading" className="m-0 text-lg font-semibold tracking-tight">
+            <h2 id="items-heading" className="font-display m-0 text-2xl font-semibold">
               Items
             </h2>
             <span className="text-sm text-muted-fg">
@@ -185,7 +165,7 @@ export function PortfolioScreen({ view }: { view: PortfolioView }) {
           </div>
           {items.length > 0 && (
             <div className="flex flex-col gap-3 md:flex-row md:items-center">
-              <InputGroup className="md:max-w-xs md:flex-1">
+              <InputGroup className="pill md:max-w-xs md:flex-1">
                 <SearchIcon aria-hidden="true" className="ms-2.5 text-muted-fg" />
                 <Input
                   type="search"
@@ -223,7 +203,7 @@ export function PortfolioScreen({ view }: { view: PortfolioView }) {
         </div>
 
         {items.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-line bg-surface px-6 py-12 text-center">
+          <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-line bg-surface px-6 py-12 text-center">
             <p className="m-0 text-base font-semibold">Nothing in {portfolio.name} yet</p>
             <p className="m-0 max-w-sm text-sm text-muted-fg">
               Add the cards, slabs and sealed product stored here. You can
@@ -235,7 +215,7 @@ export function PortfolioScreen({ view }: { view: PortfolioView }) {
             </Button>
           </div>
         ) : visible.length === 0 ? (
-          <p className="m-0 rounded-2xl border border-dashed border-line px-6 py-10 text-center text-sm text-muted-fg">
+          <p className="m-0 rounded-xl border border-dashed border-line px-6 py-10 text-center text-sm text-muted-fg">
             No items match those filters.
           </p>
         ) : (

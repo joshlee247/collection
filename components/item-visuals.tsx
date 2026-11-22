@@ -1,27 +1,31 @@
-import { AwardIcon, PackageIcon, RectangleVerticalIcon } from "lucide-react"
+import { AwardIcon, PackageIcon, SparklesIcon } from "lucide-react"
 import { KIND_LABELS, type ItemKind } from "@/lib/types"
+import { Badge } from "./card"
 
-const KIND_STYLES: Record<ItemKind, string> = {
-  card: "text-kind-card bg-[color-mix(in_oklab,var(--kind-card)_12%,var(--ui-background))]",
-  graded:
-    "text-kind-graded bg-[color-mix(in_oklab,var(--kind-graded)_14%,var(--ui-background))]",
-  sealed:
-    "text-kind-sealed bg-[color-mix(in_oklab,var(--kind-sealed)_12%,var(--ui-background))]",
+export const KIND_DOT: Record<ItemKind, string> = {
+  card: "bg-kind-card",
+  graded: "bg-kind-graded",
+  sealed: "bg-kind-sealed",
+}
+
+const KIND_ART: Record<ItemKind, string> = {
+  card: "bg-[conic-gradient(from_210deg,oklch(0.84_0.13_330),oklch(0.9_0.12_85),oklch(0.86_0.12_170),oklch(0.8_0.13_255),oklch(0.84_0.13_330))]",
+  graded: "bg-[linear-gradient(160deg,oklch(0.93_0.09_90),oklch(0.78_0.14_70))]",
+  sealed: "bg-[linear-gradient(160deg,oklch(0.9_0.1_170),oklch(0.72_0.14_200))]",
 }
 
 const KIND_ICONS: Record<ItemKind, typeof PackageIcon> = {
-  card: RectangleVerticalIcon,
+  card: SparklesIcon,
   graded: AwardIcon,
   sealed: PackageIcon,
 }
 
 export function KindBadge({ kind }: { kind: ItemKind }) {
   return (
-    <span
-      className={`inline-flex h-5 items-center rounded-full px-2 text-[0.7rem] font-semibold tracking-wide ${KIND_STYLES[kind]}`}
-    >
+    <Badge className="px-2 text-muted-fg">
+      <span aria-hidden="true" className={`size-1.5 rounded-full ${KIND_DOT[kind]}`} />
       {KIND_LABELS[kind]}
-    </span>
+    </Badge>
   )
 }
 
@@ -32,16 +36,16 @@ export function ItemThumb({
 }: {
   kind: ItemKind
   imageUrl?: string
-  size?: "md" | "lg"
+  size?: "sm" | "md"
 }) {
-  const box = size === "lg" ? "h-20 w-14" : "h-14 w-10"
+  const box = size === "sm" ? "h-11 w-8" : "h-16 w-12"
   if (imageUrl) {
     return (
       <img
         src={imageUrl}
         alt=""
         loading="lazy"
-        className={`${box} shrink-0 rounded-md bg-muted object-contain`}
+        className={`${box} shrink-0 rotate-[-3deg] rounded-md object-contain shadow-[0_4px_10px_-4px_oklch(0.3_0.1_290/0.5)]`}
       />
     )
   }
@@ -49,9 +53,12 @@ export function ItemThumb({
   return (
     <span
       aria-hidden="true"
-      className={`${box} grid shrink-0 place-items-center rounded-md ${KIND_STYLES[kind]}`}
+      className={`${box} relative grid shrink-0 rotate-[-3deg] place-items-center rounded-md border-2 border-white text-white shadow-[0_4px_10px_-4px_oklch(0.3_0.1_290/0.55)] ${KIND_ART[kind]}`}
     >
-      <Icon className="size-5" />
+      {kind === "graded" && (
+        <span className="absolute inset-x-0.5 top-0.5 h-2 rounded-sm bg-white/80" />
+      )}
+      <Icon className="size-4 drop-shadow-[0_1px_0_oklch(0.3_0.1_290/0.4)]" strokeWidth={2.5} />
     </span>
   )
 }

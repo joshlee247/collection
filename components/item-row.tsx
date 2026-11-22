@@ -26,6 +26,7 @@ import { formatMoney, itemDetail, unitValue } from "@/lib/format"
 import type { LocatedItem } from "@/lib/queries"
 import type { Item } from "@/lib/types"
 import { useDialogs } from "./dialogs-context"
+import { TrendPill } from "./card"
 import { ItemThumb, KindBadge } from "./item-visuals"
 
 async function removeWithUndo(item: Item) {
@@ -145,11 +146,11 @@ export function ItemRow({ item }: { item: LocatedItem }) {
   const detail = itemDetail(item)
 
   return (
-    <li className="grid grid-cols-[auto_1fr_auto] items-center gap-x-3 gap-y-3 rounded-xl border border-line bg-surface p-3 shadow-[0_1px_2px_oklch(0.3_0.05_278/0.04)] sm:grid-cols-[auto_1fr_auto_auto_auto] sm:gap-x-4">
+    <li className="grid grid-cols-[auto_1fr_auto] items-center gap-x-3 gap-y-3 rounded-[1.25rem] border border-[var(--glass-edge)] bg-[var(--glass-strong)] p-3 shadow-[var(--glass-shadow)] sm:grid-cols-[auto_1fr_auto_auto_auto] sm:gap-x-4">
       <ItemThumb kind={item.kind} imageUrl={item.imageUrl} />
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-          <span className="truncate font-semibold">{item.name}</span>
+          <span className="truncate font-medium">{item.name}</span>
           <KindBadge kind={item.kind} />
         </div>
         {detail && <p className="m-0 truncate text-sm text-muted-fg">{detail}</p>}
@@ -159,14 +160,17 @@ export function ItemRow({ item }: { item: LocatedItem }) {
       </div>
 
       <div className="text-end sm:order-none">
-        <div className="font-semibold tabular-nums">
+        <div className="font-display text-lg font-semibold tabular-nums">
           {formatMoney(value * item.quantity)}
         </div>
-        {item.quantity > 1 && value > 0 && (
-          <div className="text-xs tabular-nums text-muted-fg">
-            {formatMoney(value)} each
-          </div>
-        )}
+        <div className="flex items-center justify-end gap-1.5">
+          {item.quantity > 1 && value > 0 && (
+            <span className="text-xs tabular-nums text-muted-fg">{formatMoney(value)} each</span>
+          )}
+          {item.purchasePrice && item.marketValue !== null && (
+            <TrendPill value={((item.marketValue - item.purchasePrice) / item.purchasePrice) * 100} />
+          )}
+        </div>
       </div>
 
       <div className="col-span-2 sm:col-span-1">

@@ -3,11 +3,14 @@ import {
   buildTree,
   childrenOf,
   descendantIds,
+  insightsOf,
   itemsWithin,
+  locationBreakdown,
   portfolioPath,
   summarize,
   totalsOf,
 } from "./collection"
+import type { Insights, LocationBreakdown } from "./collection"
 import { readCollection } from "./store"
 import type { Item, Portfolio, PortfolioSummary, Totals, TreeNode } from "./types"
 
@@ -52,24 +55,27 @@ function options(
 
 export type Dashboard = {
   totals: Totals
+  insights: Insights
+  portfolioCount: number
   portfolios: PortfolioSummary[]
-  recent: LocatedItem[]
-  options: PortfolioOption[]
+  items: LocatedItem[]
+  locations: LocationBreakdown[]
 }
 
 export async function getDashboard(): Promise<Dashboard> {
   const collection = await readCollection()
   return {
     totals: totalsOf(collection.items),
+    insights: insightsOf(collection.items),
+    portfolioCount: collection.portfolios.length,
     portfolios: childrenOf(collection, null).map((p) => summarize(collection, p)),
-    recent: [...collection.items]
+    items: [...collection.items]
       .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
-      .slice(0, 8)
       .map((item) => ({
         ...item,
         location: portfolioPath(collection, item.portfolioId),
       })),
-    options: options(collection),
+    locations: locationBreakdown(collection, collection.items),
   }
 }
 
@@ -79,6 +85,7 @@ export type PortfolioView = {
   children: PortfolioSummary[]
   items: LocatedItem[]
   totals: Totals
+  insights: Insights
   options: PortfolioOption[]
   nestedIds: string[]
 }
@@ -105,6 +112,7 @@ export async function getPortfolioView(id: string): Promise<PortfolioView | null
       }))
       .sort((a, b) => a.name.localeCompare(b.name)),
     totals: totalsOf(items),
+    insights: insightsOf(items),
     options: options(collection),
     nestedIds: descendantIds(collection, id),
   }

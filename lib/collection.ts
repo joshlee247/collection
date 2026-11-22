@@ -279,3 +279,63 @@ export function removePortfolio(collection: Collection, id: string): Portfolio {
   collection.items = collection.items.filter((i) => !doomed.has(i.portfolioId))
   return portfolio
 }
+
+export type Insights = {
+  entries: number
+  unpriced: number
+  best: { name: string; gain: number } | null
+  top: { name: string; value: number } | null
+}
+
+export function insightsOf(items: Item[]): Insights {
+  let best: Insights["best"] = null
+  let top: Insights["top"] = null
+  for (const item of items) {
+    const value = (item.marketValue ?? item.purchasePrice ?? 0) * item.quantity
+    if (value > 0 && (!top || value > top.value)) top = { name: item.name, value }
+    if (item.purchasePrice === null || item.marketValue === null) continue
+    const gain = (item.marketValue - item.purchasePrice) * item.quantity
+    if (gain > 0 && (!best || gain > best.gain)) best = { name: item.name, gain }
+  }
+  return {
+    entries: items.length,
+    unpriced: items.filter((item) => item.purchasePrice === null).length,
+    best,
+    top,
+  }
+}
+
+export type KindFigures = Record<ItemKind, { value: number; cost: number; count: number }>
+
+export type LocationBreakdown = {
+  id: string
+  label: string
+  byKind: KindFigures
+}
+
+export function locationBreakdown(
+  collection: Collection,
+  items: Item[]
+): LocationBreakdown[] {
+  const rows = new Map<string, LocationBreakdown>()
+  for (const item of items) {
+    let row = rows.get(item.portfolioId)
+    if (!row) {
+      row = {
+        id: item.portfolioId,
+        label: portfolioPath(collection, item.portfolioId),
+        byKind: {
+          card: { value: 0, cost: 0, count: 0 },
+          graded: { value: 0, cost: 0, count: 0 },
+          sealed: { value: 0, cost: 0, count: 0 },
+        },
+      }
+      rows.set(item.portfolioId, row)
+    }
+    const figures = row.byKind[item.kind]
+    figures.count += item.quantity
+    figures.cost += (item.purchasePrice ?? 0) * item.quantity
+    figures.value += (item.marketValue ?? item.purchasePrice ?? 0) * item.quantity
+  }
+  return [...rows.values()]
+}
