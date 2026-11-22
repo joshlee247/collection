@@ -11,6 +11,7 @@ import { Tabs, TabsList, TabsPanel, TabsTab } from "@ui-sdk/react/tabs"
 import { LayoutGridIcon, ListIcon, SearchIcon } from "lucide-react"
 import { useMemo, useState } from "react"
 import { formatMoney, unitValue } from "@/lib/format"
+import { followsMarket } from "@/lib/pricing"
 import type { LocatedItem } from "@/lib/queries"
 import { ITEM_KINDS, type ItemKind } from "@/lib/types"
 import { Change } from "./card"
@@ -57,7 +58,14 @@ function Tile({ item }: { item: LocatedItem }) {
           )}
         </span>
         <span className="flex items-baseline justify-between gap-2 text-sm">
-          <span className="font-semibold tabular-nums">{formatMoney(total)}</span>
+          <span className="flex items-center gap-1.5 font-semibold tabular-nums">
+            {followsMarket(item) && (
+              <span className="size-1.5 rounded-full bg-gain" title="Live TCGplayer price">
+                <span className="sr-only">Live price,</span>
+              </span>
+            )}
+            {formatMoney(total)}
+          </span>
           <Change percent={change} className="text-xs" />
         </span>
       </span>

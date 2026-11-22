@@ -17,10 +17,12 @@ export function StatGrid({
   totals,
   insights,
   scope,
+  weekChange = null,
 }: {
   totals: Totals
   insights: Insights
   scope: string
+  weekChange?: number | null
 }) {
   const gain = totals.value - totals.cost
   const percent = totals.cost > 0 ? (gain / totals.cost) * 100 : null
@@ -45,6 +47,15 @@ export function StatGrid({
             </>
           )}
         </dd>
+        {weekChange !== null && (
+          <dd className="m-0 text-sm">
+            <Change
+              amount={formatMoney(Math.abs(weekChange))}
+              percent={totals.value - weekChange > 0 ? (weekChange / (totals.value - weekChange)) * 100 : 0}
+            />{" "}
+            <span className="text-muted-fg">past 7 days</span>
+          </dd>
+        )}
       </div>
       <Figure
         label="Cost basis"

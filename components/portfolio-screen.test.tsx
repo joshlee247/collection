@@ -44,6 +44,11 @@ function item(fields: Partial<Item>): Item {
     marketValue: null,
     imageUrl: "",
     notes: "",
+    cardId: "",
+    priceVariant: "",
+    livePrice: false,
+    market: null,
+    priceHistory: [],
     createdAt: now,
     updatedAt: now,
     ...fields,
@@ -75,6 +80,7 @@ const view: PortfolioView = {
     { value: "bin-1", label: "Sealed / Bin 1", depth: 1 },
   ],
   nestedIds: ["bin-1"],
+  pricing: { refreshedAt: null, linked: 0, weekChange: null },
 }
 
 let approve = false

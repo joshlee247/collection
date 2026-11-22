@@ -20,7 +20,7 @@ import {
   CardDescription,
   CardTitle,
 } from "./card"
-import { KIND_DOT } from "./item-visuals"
+import { KIND_DOT } from "@/lib/kinds"
 
 type Measure = "value" | "cost" | "count"
 

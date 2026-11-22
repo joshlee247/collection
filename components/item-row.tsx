@@ -27,7 +27,8 @@ import { formatMoney, itemDetail, unitValue } from "@/lib/format"
 import type { LocatedItem } from "@/lib/queries"
 import type { Item } from "@/lib/types"
 import { useDialogs } from "./dialogs-context"
-import { Change } from "./card"
+import { followsMarket } from "@/lib/pricing"
+import { Badge, Change } from "./card"
 import { ItemThumb, KindBadge } from "./item-visuals"
 
 export async function removeWithUndo(item: Item) {
@@ -157,6 +158,12 @@ export function ItemRow({ item }: { item: LocatedItem }) {
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <span className="truncate font-medium">{item.name}</span>
           <KindBadge kind={item.kind} />
+          {followsMarket(item) && (
+            <Badge className="text-gain">
+              <span aria-hidden="true" className="size-1.5 rounded-full bg-gain" />
+              Live
+            </Badge>
+          )}
         </div>
         {detail && <p className="m-0 truncate text-sm text-muted-fg">{detail}</p>}
         {item.location && <p className="m-0 truncate text-xs text-muted-fg">in {item.location}</p>}

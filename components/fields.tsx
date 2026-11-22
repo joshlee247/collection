@@ -111,11 +111,13 @@ export function MoneyField({
   name,
   defaultValue,
   description,
+  readOnly,
 }: {
   label: string
   name: string
   defaultValue: number | null
   description?: string
+  readOnly?: boolean
 }) {
   return (
     <Field>
@@ -123,6 +125,7 @@ export function MoneyField({
       <NumberInput
         name={name}
         defaultValue={defaultValue}
+        readOnly={readOnly}
         min={0}
         step={0.01}
         format={{ style: "currency", currency: "USD" }}

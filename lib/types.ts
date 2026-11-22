@@ -57,15 +57,36 @@ export type Item = {
   marketValue: number | null
   imageUrl: string
   notes: string
+  cardId: string
+  priceVariant: string
+  livePrice: boolean
+  market: MarketQuote | null
+  priceHistory: PricePoint[]
   createdAt: string
   updatedAt: string
 }
 
-export type ItemInput = Omit<Item, "id" | "createdAt" | "updatedAt">
+export type MarketQuote = {
+  source: "tcgplayer"
+  variant: string
+  variants: string[]
+  market: number | null
+  low: number | null
+  mid: number | null
+  high: number | null
+  updatedAt: string
+  fetchedAt: string
+  url: string
+}
+
+export type PricePoint = { date: string; market: number }
+
+export type ItemInput = Omit<Item, "id" | "createdAt" | "updatedAt" | "market" | "priceHistory">
 
 export type Collection = {
   portfolios: Portfolio[]
   items: Item[]
+  pricesRefreshedAt: string | null
 }
 
 export type Totals = {

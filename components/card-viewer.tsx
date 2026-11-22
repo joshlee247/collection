@@ -9,15 +9,17 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@ui-sdk/react/dialog"
-import { PencilIcon, Trash2Icon, XIcon } from "lucide-react"
+import { ArrowUpRightIcon, PencilIcon, Trash2Icon, XIcon } from "lucide-react"
 import Link from "next/link"
 import { formatMoney, itemDetail, unitValue } from "@/lib/format"
 import type { LocatedItem } from "@/lib/queries"
-import { KIND_LABELS } from "@/lib/types"
+import { followsMarket, variantLabel } from "@/lib/pricing"
+import { KIND_LABELS, type Item } from "@/lib/types"
 import { Change } from "./card"
 import { useDialogs, type ViewerPayload } from "./dialogs-context"
 import { removeWithUndo, QuantityStepper } from "./item-row"
 import { HoloCard } from "./item-visuals"
+import { Sparkline } from "./sparkline"
 
 function Figure({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -25,6 +27,45 @@ function Figure({ label, children }: { label: string; children: React.ReactNode 
       <dt className="text-xs text-muted-fg">{label}</dt>
       <dd className="m-0 text-base font-medium tabular-nums">{children}</dd>
     </div>
+  )
+}
+
+function feedDate(date: string) {
+  return date
+    ? new Date(`${date}T00:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" })
+    : "unknown date"
+}
+
+function MarketPanel({ item }: { item: Item }) {
+  const quote = item.market!
+  const live = followsMarket(item)
+  const money = (value: number | null) => (value === null ? "—" : formatMoney(value))
+  return (
+    <section aria-label="TCGplayer market" className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <span className="flex items-center gap-2 text-xs text-muted-fg">
+          {live && <span aria-hidden="true" className="size-1.5 rounded-full bg-gain" />}
+          {live ? "Live" : item.kind === "graded" ? "Raw card reference" : "Reference"} · TCGplayer{" "}
+          {variantLabel(quote.variant).toLowerCase()} · as of {feedDate(quote.updatedAt)}
+        </span>
+        <a
+          href={quote.url}
+          target="_blank"
+          rel="noreferrer"
+          className="flex items-center gap-1 rounded-full border border-[oklch(0.37_0.01_286/0.5)] bg-[oklch(0.21_0.006_286/0.7)] px-3 py-1 text-xs text-fg no-underline hover:bg-muted"
+        >
+          View on TCGplayer
+          <ArrowUpRightIcon aria-hidden="true" className="size-3.5" />
+        </a>
+      </div>
+      <dl className="m-0 grid grid-cols-4 gap-3">
+        <Figure label="Low">{money(quote.low)}</Figure>
+        <Figure label="Market">{money(quote.market)}</Figure>
+        <Figure label="Mid">{money(quote.mid)}</Figure>
+        <Figure label="High">{money(quote.high)}</Figure>
+      </dl>
+      <Sparkline history={item.priceHistory} />
+    </section>
   )
 }
 
@@ -100,6 +141,8 @@ export function CardViewer({ items }: { items: LocatedItem[] }) {
                   {item.kind === "card" && <Figure label="Condition">{item.condition || "—"}</Figure>}
                   <Figure label="Language">{item.language || "English"}</Figure>
                 </dl>
+
+                {item.market && <MarketPanel item={item} />}
 
                 {item.notes && <p className="m-0 text-sm text-muted-fg">{item.notes}</p>}
 

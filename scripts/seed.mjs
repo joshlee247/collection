@@ -19,12 +19,14 @@ const base = {
   set: "", number: "", language: "English", quantity: 1, condition: "",
   grader: "", grade: "", certNumber: "", sealedType: "",
   purchasePrice: null, marketValue: null, imageUrl: "", notes: "",
+  cardId: "", priceVariant: "", livePrice: false, market: null, priceHistory: [],
   createdAt: now, updatedAt: now,
 }
 let n = 0
 const item = (portfolioId, fields) => ({ ...base, id: `demo-${++n}`, portfolioId, ...fields })
 
 const collection = {
+  pricesRefreshedAt: null,
   portfolios: [
     portfolio("sealed", "Sealed", null, "Closet shelf, three stacked bins"),
     portfolio("bin-1", "Bin 1", "sealed", "Top bin: booster boxes"),
@@ -46,8 +48,10 @@ const collection = {
     item("slabs", { kind: "graded", name: "Mew ex", set: "151", grader: "PSA", grade: "10", language: "Chinese", imageUrl: "/images/slabs/mew_ex_cn_psa_10.webp", purchasePrice: 120, marketValue: 140 }),
     item("slabs", { kind: "graded", name: "Sylveon ex", set: "Terastal Festival", grader: "PSA", grade: "10", language: "Japanese", imageUrl: "/images/slabs/sylveon_terrastal_psa_10.webp", purchasePrice: 210, marketValue: 260 }),
     item("slabs", { kind: "graded", name: "Bulbasaur", set: "Stellar Crown", grader: "PSA", grade: "10", imageUrl: "/images/slabs/bulbasaur_stellar_crown_psa_10.webp", purchasePrice: 90, marketValue: 120 }),
-    item("binder", { kind: "card", name: "Pikachu ex", set: "Surging Sparks", number: "238/191", condition: "Near Mint", quantity: 1, purchasePrice: 180, marketValue: 210 }),
-    item("binder", { kind: "card", name: "Mew ex", set: "151", number: "205/165", condition: "Lightly Played", quantity: 2, purchasePrice: 25, marketValue: 30 }),
+    item("binder", { kind: "card", name: "Pikachu ex", set: "Surging Sparks", number: "238/191", condition: "Near Mint", quantity: 1, purchasePrice: 180, marketValue: 210, cardId: "sv8-238", livePrice: true, imageUrl: "https://images.pokemontcg.io/sv8/238_hires.png" }),
+    item("binder", { kind: "card", name: "Mew ex", set: "151", number: "205/165", condition: "Near Mint", quantity: 2, purchasePrice: 25, marketValue: 30, cardId: "sv3pt5-205", livePrice: true, imageUrl: "https://images.pokemontcg.io/sv3pt5/205_hires.png" }),
+    item("binder", { kind: "card", name: "Umbreon VMAX", set: "Evolving Skies", number: "215/203", condition: "Near Mint", quantity: 1, purchasePrice: 1800, marketValue: 2000, cardId: "swsh7-215", livePrice: true, imageUrl: "https://images.pokemontcg.io/swsh7/215_hires.png" }),
+    item("binder", { kind: "card", name: "Charizard", set: "Base", number: "4/102", condition: "Lightly Played", quantity: 1, purchasePrice: 700, marketValue: 800, cardId: "base1-4", livePrice: true, imageUrl: "https://images.pokemontcg.io/base1/4_hires.png" }),
   ],
 }
 

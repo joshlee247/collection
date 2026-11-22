@@ -28,9 +28,17 @@ Open http://localhost:3000.
   `public/`, like `/images/slabs/…`) into an item. Raw cards show in a
   toploader, slabs and sealed product show as their photo. Click any card to
   open it with a holo tilt and its market data.
-- **Prices**: market value and price paid are entered per item; the app
-  totals them per bin and overall and shows the gain. They aren't fetched
-  from a price feed.
+- **Live prices**: in "Add item", search "Find card" (like `mew ex 205`) to
+  link a raw card to the [Pokémon TCG API](https://pokemontcg.io). It fills in
+  the details and image, and its market value follows the TCGplayer market
+  price for the variant you pick. Prices refresh when you open the app and
+  they're over 6 hours old, or with "Refresh prices". Each refresh keeps one
+  price per day, so the card viewer can chart history and the panel can show
+  the change over the past 7 days.
+- **What isn't live**: the API has no prices for graded slabs or sealed
+  product, so you set those values yourself. A linked slab still shows its
+  raw card's price as a reference. TCGplayer's market price is for near mint
+  copies, whatever condition you record.
 - **Items**: "Add item" on a portfolio page. Pick Raw card, Graded or Sealed;
   the form shows the fields for that type (condition, grading company and
   grade, or product type). Use "Edit or move" in an item's ⋯ menu to change it
@@ -49,6 +57,19 @@ deployment) and set the public address before printing labels:
 ```bash
 NEXT_PUBLIC_APP_URL=http://192.168.1.20:3000 npm run dev
 ```
+
+## Pricing API
+
+The app calls `api.pokemontcg.io` from the server. It works without a key at
+lower rate limits; for more, get a free key at https://dev.pokemontcg.io and
+set it:
+
+```bash
+POKEMONTCG_API_KEY=your-key npm run dev
+```
+
+The API sometimes answers with server errors; requests are retried, and if
+prices can't be fetched, the last known values are kept.
 
 ## Data
 

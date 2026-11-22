@@ -2,14 +2,10 @@
 
 import { PackageIcon } from "lucide-react"
 import { useRef } from "react"
+import { KIND_DOT } from "@/lib/kinds"
 import { KIND_LABELS, type Item, type ItemKind } from "@/lib/types"
 import { Badge, cx } from "./card"
 
-export const KIND_DOT: Record<ItemKind, string> = {
-  card: "bg-kind-card",
-  graded: "bg-kind-graded",
-  sealed: "bg-kind-sealed",
-}
 
 export function KindBadge({ kind }: { kind: ItemKind }) {
   return (

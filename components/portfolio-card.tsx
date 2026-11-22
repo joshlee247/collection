@@ -2,7 +2,7 @@ import { ArrowUpRightIcon } from "lucide-react"
 import Link from "next/link"
 import { formatCount, formatMoney } from "@/lib/format"
 import type { PortfolioSummary } from "@/lib/types"
-import { KIND_DOT } from "./item-visuals"
+import { KIND_DOT } from "@/lib/kinds"
 
 export function PortfolioCard({ portfolio }: { portfolio: PortfolioSummary }) {
   const { totals } = portfolio

@@ -26,6 +26,7 @@ import { CardViewer } from "./card-viewer"
 import { CollectionGrid } from "./collection-grid"
 import { useDialogs } from "./dialogs-context"
 import { PortfolioCard } from "./portfolio-card"
+import { PriceRefresh } from "./price-refresh"
 import { QrDialog } from "./qr-dialog"
 import { StatGrid } from "./stats"
 
@@ -123,7 +124,10 @@ export function PortfolioScreen({ view }: { view: PortfolioView }) {
         </div>
       </header>
 
-      <StatGrid totals={totals} insights={view.insights} scope={portfolio.name} />
+      <div className="flex flex-col gap-3">
+        <StatGrid totals={totals} insights={view.insights} scope={portfolio.name} weekChange={view.pricing.weekChange} />
+        <PriceRefresh pricing={view.pricing} />
+      </div>
 
       {children.length > 0 && (
         <section aria-labelledby="inside-heading" className="flex flex-col gap-6">

@@ -16,7 +16,23 @@ import {
 export class CollectionError extends Error {}
 
 export function emptyCollection(): Collection {
-  return { portfolios: [], items: [] }
+  return { portfolios: [], items: [], pricesRefreshedAt: null }
+}
+
+// Collections saved before live prices existed lack the pricing fields.
+export function normalizeCollection(raw: Partial<Collection>): Collection {
+  return {
+    portfolios: Array.isArray(raw.portfolios) ? raw.portfolios : [],
+    items: (Array.isArray(raw.items) ? raw.items : []).map((item) => ({
+      ...item,
+      cardId: item.cardId ?? "",
+      priceVariant: item.priceVariant ?? "",
+      livePrice: item.livePrice ?? Boolean(item.cardId),
+      market: item.market ?? null,
+      priceHistory: Array.isArray(item.priceHistory) ? item.priceHistory : [],
+    })),
+    pricesRefreshedAt: raw.pricesRefreshedAt ?? null,
+  }
 }
 
 export function descendantIds(collection: Collection, id: string): string[] {
@@ -164,7 +180,19 @@ export function parseItemInput(
       ? text(raw.imageUrl, 1000)
       : "",
     notes: text(raw.notes, 2000),
+    cardId: kind === "sealed" ? "" : cardId(raw.cardId),
+    priceVariant: kind === "sealed" ? "" : text(raw.priceVariant, 40).replace(/[^\w]/g, ""),
+    livePrice: kind === "card" && Boolean(cardId(raw.cardId)) && truthy(raw.livePrice),
   }
+}
+
+function cardId(value: unknown) {
+  const id = text(value, 60)
+  return /^[a-z0-9.]+-[a-z0-9.]+$/i.test(id) ? id : ""
+}
+
+function truthy(value: unknown) {
+  return value === true || value === "on" || value === "true"
 }
 
 export function addItem(
@@ -173,7 +201,7 @@ export function addItem(
   id: string,
   now: string
 ): Item {
-  const item: Item = { ...input, id, createdAt: now, updatedAt: now }
+  const item: Item = { ...input, market: null, priceHistory: [], id, createdAt: now, updatedAt: now }
   collection.items.push(item)
   return item
 }
@@ -185,6 +213,10 @@ export function updateItem(
   now: string
 ): Item {
   const item = findItem(collection, id)
+  if (item.cardId !== input.cardId) {
+    item.market = null
+    item.priceHistory = []
+  }
   Object.assign(item, input, { updatedAt: now })
   return item
 }

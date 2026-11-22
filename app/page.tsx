@@ -6,6 +6,7 @@ import { DashboardActions } from "@/components/dashboard-actions"
 import { LocationChart } from "@/components/location-chart"
 import { PageSkeleton } from "@/components/page-skeleton"
 import { PortfolioCard } from "@/components/portfolio-card"
+import { PriceRefresh } from "@/components/price-refresh"
 import { StatGrid } from "@/components/stats"
 import { formatCount } from "@/lib/format"
 import { getDashboard } from "@/lib/queries"
@@ -13,7 +14,7 @@ import { getDashboard } from "@/lib/queries"
 export const metadata = { title: "Collection" }
 
 async function Dashboard() {
-  const { totals, insights, portfolios, portfolioCount, items, locations } = await getDashboard()
+  const { totals, insights, portfolios, portfolioCount, items, locations, pricing } = await getDashboard()
 
   return (
     <div className="flex flex-col gap-16 px-6 pt-12 pb-32 md:px-10 md:pb-16">
@@ -27,7 +28,10 @@ async function Dashboard() {
         <DashboardActions canAddItem={portfolioCount > 0} />
       </header>
 
-      <StatGrid totals={totals} insights={insights} scope="all" />
+      <div className="flex flex-col gap-3">
+        <StatGrid totals={totals} insights={insights} scope="all" weekChange={pricing.weekChange} />
+        <PriceRefresh pricing={pricing} />
+      </div>
 
       <section aria-labelledby="portfolios-heading" className="flex flex-col gap-6">
         <SectionTitle id="portfolios-heading">Portfolios</SectionTitle>

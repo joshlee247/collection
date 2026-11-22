@@ -1,7 +1,7 @@
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises"
 import path from "node:path"
 import { connection } from "next/server"
-import { emptyCollection } from "./collection"
+import { emptyCollection, normalizeCollection } from "./collection"
 import type { Collection } from "./types"
 
 // The data file lives outside the bundle, so the build shouldn't trace it.
@@ -11,11 +11,7 @@ const dataFile = () =>
 
 async function load(): Promise<Collection> {
   try {
-    const parsed = JSON.parse(await readFile(/*turbopackIgnore: true*/ dataFile(), "utf8"))
-    return {
-      portfolios: Array.isArray(parsed.portfolios) ? parsed.portfolios : [],
-      items: Array.isArray(parsed.items) ? parsed.items : [],
-    }
+    return normalizeCollection(JSON.parse(await readFile(/*turbopackIgnore: true*/ dataFile(), "utf8")))
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") {
       return emptyCollection()

@@ -11,10 +11,25 @@ import {
   totalsOf,
 } from "./collection"
 import type { Insights, LocationBreakdown } from "./collection"
+import { periodChange, today } from "./pricing"
 import { readCollection } from "./store"
 import type { Item, Portfolio, PortfolioSummary, Totals, TreeNode } from "./types"
 
 export type PortfolioOption = { value: string; label: string; depth: number }
+
+export type PricingState = {
+  refreshedAt: string | null
+  linked: number
+  weekChange: number | null
+}
+
+function pricingState(collection: Awaited<ReturnType<typeof readCollection>>, items: Item[]): PricingState {
+  return {
+    refreshedAt: collection.pricesRefreshedAt,
+    linked: collection.items.filter((item) => item.cardId && item.kind !== "sealed").length,
+    weekChange: periodChange(items, 7, today()),
+  }
+}
 
 export type LocatedItem = Item & { location: string }
 
@@ -60,6 +75,7 @@ export type Dashboard = {
   portfolios: PortfolioSummary[]
   items: LocatedItem[]
   locations: LocationBreakdown[]
+  pricing: PricingState
 }
 
 export async function getDashboard(): Promise<Dashboard> {
@@ -76,6 +92,7 @@ export async function getDashboard(): Promise<Dashboard> {
         location: portfolioPath(collection, item.portfolioId),
       })),
     locations: locationBreakdown(collection, collection.items),
+    pricing: pricingState(collection, collection.items),
   }
 }
 
@@ -88,6 +105,7 @@ export type PortfolioView = {
   insights: Insights
   options: PortfolioOption[]
   nestedIds: string[]
+  pricing: PricingState
 }
 
 export async function getPortfolioView(id: string): Promise<PortfolioView | null> {
@@ -115,5 +133,6 @@ export async function getPortfolioView(id: string): Promise<PortfolioView | null
     insights: insightsOf(items),
     options: options(collection),
     nestedIds: descendantIds(collection, id),
+    pricing: pricingState(collection, items),
   }
 }
