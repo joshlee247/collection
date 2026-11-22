@@ -14,6 +14,7 @@ import {
   MinusIcon,
   PencilIcon,
   PlusIcon,
+  ScanEyeIcon,
   Trash2Icon,
 } from "lucide-react"
 import { useEffect, useRef, useState, useTransition } from "react"
@@ -26,10 +27,10 @@ import { formatMoney, itemDetail, unitValue } from "@/lib/format"
 import type { LocatedItem } from "@/lib/queries"
 import type { Item } from "@/lib/types"
 import { useDialogs } from "./dialogs-context"
-import { TrendPill } from "./card"
+import { Change } from "./card"
 import { ItemThumb, KindBadge } from "./item-visuals"
 
-async function removeWithUndo(item: Item) {
+export async function removeWithUndo(item: Item) {
   const result = await deleteItem(item.id)
   if (!result.ok) {
     toast.error("Couldn't remove it", { description: result.error })
@@ -56,7 +57,7 @@ const STEP_REASONS = new Set([
   "imperative",
 ])
 
-function QuantityStepper({ item }: { item: Item }) {
+export function QuantityStepper({ item, inViewer = false }: { item: Item; inViewer?: boolean }) {
   const [value, setValue] = useState<number | null>(item.quantity)
   const [synced, setSynced] = useState(item.quantity)
   const saved = useRef(item.quantity)
@@ -128,11 +129,11 @@ function QuantityStepper({ item }: { item: Item }) {
       max={99999}
     >
       <NumberInputGroup className="qty">
-        <NumberInputDecrement aria-label={`Remove one ${item.name}`}>
+        <NumberInputDecrement aria-label={inViewer ? `Remove a copy of ${item.name}` : `Remove one ${item.name}`}>
           <MinusIcon aria-hidden="true" />
         </NumberInputDecrement>
-        <NumberInputControl aria-label={`Quantity of ${item.name}`} />
-        <NumberInputIncrement aria-label={`Add one ${item.name}`}>
+        <NumberInputControl aria-label={inViewer ? `Copies of ${item.name}` : `Quantity of ${item.name}`} />
+        <NumberInputIncrement aria-label={inViewer ? `Add a copy of ${item.name}` : `Add one ${item.name}`}>
           <PlusIcon aria-hidden="true" />
         </NumberInputIncrement>
       </NumberInputGroup>
@@ -141,35 +142,31 @@ function QuantityStepper({ item }: { item: Item }) {
 }
 
 export function ItemRow({ item }: { item: LocatedItem }) {
-  const { item: dialog } = useDialogs()
+  const dialogs = useDialogs()
   const value = unitValue(item)
   const detail = itemDetail(item)
+  const change =
+    item.purchasePrice && item.marketValue !== null
+      ? ((item.marketValue - item.purchasePrice) / item.purchasePrice) * 100
+      : null
 
   return (
-    <li className="grid grid-cols-[auto_1fr_auto] items-center gap-x-3 gap-y-3 rounded-[1.25rem] border border-[var(--glass-edge)] bg-[var(--glass-strong)] p-3 shadow-[var(--glass-shadow)] sm:grid-cols-[auto_1fr_auto_auto_auto] sm:gap-x-4">
-      <ItemThumb kind={item.kind} imageUrl={item.imageUrl} />
+    <li className="grid grid-cols-[auto_1fr_auto] items-center gap-x-4 gap-y-3 border-b border-line py-3 last:border-0 sm:grid-cols-[auto_1fr_auto_auto_auto]">
+      <ItemThumb item={item} />
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <span className="truncate font-medium">{item.name}</span>
           <KindBadge kind={item.kind} />
         </div>
         {detail && <p className="m-0 truncate text-sm text-muted-fg">{detail}</p>}
-        {item.location && (
-          <p className="m-0 truncate text-xs text-muted-fg">in {item.location}</p>
-        )}
+        {item.location && <p className="m-0 truncate text-xs text-muted-fg">in {item.location}</p>}
       </div>
 
-      <div className="text-end sm:order-none">
-        <div className="font-display text-lg font-semibold tabular-nums">
-          {formatMoney(value * item.quantity)}
-        </div>
-        <div className="flex items-center justify-end gap-1.5">
-          {item.quantity > 1 && value > 0 && (
-            <span className="text-xs tabular-nums text-muted-fg">{formatMoney(value)} each</span>
-          )}
-          {item.purchasePrice && item.marketValue !== null && (
-            <TrendPill value={((item.marketValue - item.purchasePrice) / item.purchasePrice) * 100} />
-          )}
+      <div className="text-end">
+        <div className="font-semibold tabular-nums">{formatMoney(value * item.quantity)}</div>
+        <div className="flex items-center justify-end gap-2 text-xs text-muted-fg">
+          {item.quantity > 1 && value > 0 && <span className="tabular-nums">{formatMoney(value)} ea</span>}
+          <Change percent={change} />
         </div>
       </div>
 
@@ -180,7 +177,8 @@ export function ItemRow({ item }: { item: LocatedItem }) {
       <div className="justify-self-end">
         <Menu
           onAction={(action) => {
-            if (action === "edit") dialog.open({ payload: { item } })
+            if (action === "view") dialogs.viewer.open({ payload: { itemId: item.id } })
+            if (action === "edit") dialogs.item.open({ payload: { item } })
             if (action === "delete") return removeWithUndo(item)
           }}
         >
@@ -188,6 +186,10 @@ export function ItemRow({ item }: { item: LocatedItem }) {
             <EllipsisIcon aria-hidden="true" />
           </MenuTrigger>
           <MenuContent align="end">
+            <MenuItem value="view">
+              <ScanEyeIcon aria-hidden="true" />
+              View card
+            </MenuItem>
             <MenuItem value="edit">
               <PencilIcon aria-hidden="true" />
               Edit or move

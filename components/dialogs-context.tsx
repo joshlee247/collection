@@ -6,11 +6,13 @@ import type { Item, Portfolio } from "@/lib/types"
 
 export type ItemPayload = { item?: Item; portfolioId?: string }
 export type PortfolioPayload = { portfolio?: Portfolio; parentId?: string | null }
+export type ViewerPayload = { itemId: string }
 
 function createControllers() {
   return {
     item: createDialogController<ItemPayload>(),
     portfolio: createDialogController<PortfolioPayload>(),
+    viewer: createDialogController<ViewerPayload>(),
   }
 }
 

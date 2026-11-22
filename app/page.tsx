@@ -1,49 +1,60 @@
 import { Suspense } from "react"
-import { DashboardActions, NewPortfolioTile } from "@/components/dashboard-actions"
-import { InventoryTable } from "@/components/inventory-table"
+import { SectionTitle } from "@/components/card"
+import { CardViewer } from "@/components/card-viewer"
+import { CollectionGrid } from "@/components/collection-grid"
+import { DashboardActions } from "@/components/dashboard-actions"
 import { LocationChart } from "@/components/location-chart"
 import { PageSkeleton } from "@/components/page-skeleton"
 import { PortfolioCard } from "@/components/portfolio-card"
-import { StatGrid, Summary } from "@/components/stats"
+import { StatGrid } from "@/components/stats"
+import { formatCount } from "@/lib/format"
 import { getDashboard } from "@/lib/queries"
 
-export const metadata = { title: "Dashboard" }
+export const metadata = { title: "Collection" }
 
 async function Dashboard() {
   const { totals, insights, portfolios, portfolioCount, items, locations } = await getDashboard()
 
   return (
-    <div className="flex flex-col gap-8 px-4 py-4 lg:px-8 lg:py-6">
-      <section aria-labelledby="dashboard-heading" className="flex flex-col gap-5">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h1
-            id="dashboard-heading"
-            className="m-0 text-xs font-semibold tracking-[0.16em] text-muted-fg uppercase"
-          >
-            Your collection
-          </h1>
-          <DashboardActions canAddItem={portfolioCount > 0} />
+    <div className="flex flex-col gap-16 px-6 pt-12 pb-32 md:px-10 md:pb-16">
+      <header className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1 className="m-0 text-2xl font-semibold tracking-tight text-white">Collection</h1>
+          <p className="m-0 mt-0.5 text-sm text-muted-fg">
+            Pokémon TCG · {formatCount(totals.count, "item")} · {formatCount(portfolioCount, "portfolio")}
+          </p>
         </div>
-        <Summary totals={totals} insights={insights} portfolioCount={portfolioCount} />
+        <DashboardActions canAddItem={portfolioCount > 0} />
+      </header>
+
+      <StatGrid totals={totals} insights={insights} scope="all" />
+
+      <section aria-labelledby="portfolios-heading" className="flex flex-col gap-6">
+        <SectionTitle id="portfolios-heading">Portfolios</SectionTitle>
+        {portfolios.length === 0 ? (
+          <p className="m-0 text-sm text-muted-fg">
+            Make a portfolio for each bin, binder or shelf. Group bins inside a parent, like Bin 1–3 inside Sealed.
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {portfolios.map((portfolio) => (
+              <PortfolioCard key={portfolio.id} portfolio={portfolio} />
+            ))}
+          </div>
+        )}
       </section>
 
-      <StatGrid totals={totals} insights={insights} scope="your vault" />
-
-      <section aria-labelledby="portfolios-heading" className="flex flex-col gap-4">
-        <h2 id="portfolios-heading" className="font-display m-0 text-2xl font-semibold">
-          Portfolios
-        </h2>
-        <div className="grid grid-cols-2 gap-x-4 gap-y-6 @2xl/main:grid-cols-3 @5xl/main:grid-cols-4">
-          {portfolios.map((portfolio) => (
-            <PortfolioCard key={portfolio.id} portfolio={portfolio} />
-          ))}
-          <NewPortfolioTile />
-        </div>
+      <section aria-labelledby="market-heading" className="flex flex-col gap-6">
+        <SectionTitle id="market-heading">Market</SectionTitle>
+        <LocationChart locations={locations} />
       </section>
 
-      <LocationChart locations={locations} />
+      <section aria-labelledby="collection-heading" className="flex flex-col gap-6">
+        <SectionTitle id="collection-heading">Personal collection</SectionTitle>
+        <CollectionGrid items={items} label="Personal collection" />
+      </section>
 
-      <InventoryTable items={items} />
+      <CardViewer items={items} />
     </div>
   )
 }

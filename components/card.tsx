@@ -4,30 +4,17 @@ const cx = (...classes: (string | false | null | undefined)[]) =>
   classes.filter(Boolean).join(" ")
 
 export function Card({ className, ...props }: DivProps) {
-  return (
-    <div
-      className={cx("glass flex flex-col gap-5 rounded-[1.75rem] py-6 text-fg", className)}
-      {...props}
-    />
-  )
+  return <div className={cx("bento flex flex-col gap-5 py-5 text-fg", className)} {...props} />
 }
 
 export function CardHeader({ className, ...props }: DivProps) {
-  return (
-    <div
-      className={cx(
-        "grid auto-rows-min grid-rows-[auto_auto] items-start gap-1 px-6 has-[[data-card-action]]:grid-cols-[1fr_auto]",
-        className
-      )}
-      {...props}
-    />
-  )
+  return <div className={cx("flex flex-col gap-1 px-5", className)} {...props} />
 }
 
 export function CardTitle({ className, ...props }: DivProps) {
   return (
     <div
-      className={cx("font-display text-xl leading-tight font-semibold", className)}
+      className={cx("text-sm font-semibold tracking-wide text-fg uppercase", className)}
       {...props}
     />
   )
@@ -37,29 +24,15 @@ export function CardDescription({ className, ...props }: DivProps) {
   return <div className={cx("text-sm text-muted-fg", className)} {...props} />
 }
 
-export function CardAction({ className, ...props }: DivProps) {
-  return (
-    <div
-      data-card-action=""
-      className={cx("col-start-2 row-span-2 row-start-1 self-start justify-self-end", className)}
-      {...props}
-    />
-  )
-}
-
 export function CardContent({ className, ...props }: DivProps) {
-  return <div className={cx("px-6", className)} {...props} />
-}
-
-export function CardFooter({ className, ...props }: DivProps) {
-  return <div className={cx("flex items-center px-6", className)} {...props} />
+  return <div className={cx("px-5", className)} {...props} />
 }
 
 export function Badge({ className, ...props }: React.ComponentProps<"span">) {
   return (
     <span
       className={cx(
-        "inline-flex w-fit shrink-0 items-center justify-center gap-1 rounded-full border border-[var(--glass-edge)] bg-[var(--glass-strong)] px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap text-fg [&>svg]:size-3",
+        "inline-flex w-fit shrink-0 items-center gap-1.5 rounded-md border border-[oklch(1_0_0/12%)] px-1.5 py-0.5 text-xs font-medium whitespace-nowrap text-muted-fg",
         className
       )}
       {...props}
@@ -67,20 +40,41 @@ export function Badge({ className, ...props }: React.ComponentProps<"span">) {
   )
 }
 
-export function TrendPill({ value, className }: { value: number; className?: string }) {
-  const up = value >= 0
+export function Change({
+  amount,
+  percent,
+  className,
+}: {
+  amount?: string
+  percent: number | null
+  className?: string
+}) {
+  if (percent === null) return null
+  const up = percent >= 0
   return (
-    <span
-      className={cx(
-        "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-bold tabular-nums",
-        up
-          ? "bg-[color-mix(in_oklab,var(--gain)_16%,transparent)] text-gain"
-          : "bg-[color-mix(in_oklab,var(--loss)_14%,transparent)] text-loss",
-        className
-      )}
-    >
-      {up ? "↑" : "↓"} {Math.abs(value).toFixed(1)}%
+    <span className={cx("tabular-nums", up ? "text-gain" : "text-loss", className)}>
+      {up ? "▲" : "▼"} {amount && `${amount} `}
+      {amount ? `(${Math.abs(percent).toFixed(1)}%)` : `${Math.abs(percent).toFixed(1)}%`}
     </span>
+  )
+}
+
+export function SectionTitle({
+  children,
+  id,
+  action,
+}: {
+  children: React.ReactNode
+  id?: string
+  action?: React.ReactNode
+}) {
+  return (
+    <div className="flex flex-wrap items-end justify-between gap-3">
+      <h2 id={id} className="m-0 text-2xl font-semibold tracking-tight uppercase">
+        {children}
+      </h2>
+      {action}
+    </div>
   )
 }
 

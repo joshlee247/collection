@@ -1,4 +1,4 @@
-# Card Vault
+# vault.
 
 Track a Pokémon card collection by where it's physically stored. Raw cards,
 graded slabs and sealed product live in **portfolios** (a bin, binder or
@@ -6,13 +6,14 @@ shelf), and portfolios can hold other portfolios, like `Sealed → Bin 1, 2, 3`.
 Every portfolio has a QR code: stick it on the bin, scan it with your phone,
 and tap − or + to update what's inside.
 
-Built with Next.js 16 and [ui-sdk](https://ui-sdk.dev) components.
+Built with Next.js 16 and [ui-sdk](https://ui-sdk.dev) components, styled to
+match the cards page on joshtlee.com.
 
 ## Getting started
 
 ```bash
 npm install
-npm run seed   # optional: demo data with Sealed → Bin 1–3, slabs and a binder
+npm run seed   # optional: demo data (placeholder prices) with Sealed → Bin 1–3, slabs and a binder
 npm run dev
 ```
 
@@ -20,9 +21,16 @@ Open http://localhost:3000.
 
 ## Using it
 
-- **Portfolios**: create one from the sidebar. Choose "Inside" to nest it
+- **Portfolios**: create one with "New portfolio" on the Collection page (or the folder icon in the top bar). Choose "Inside" to nest it
   under another. A parent's page totals everything in its sub-portfolios, and
   can list their items too.
+- **Images**: paste a card, slab or product image URL (or a path under
+  `public/`, like `/images/slabs/…`) into an item. Raw cards show in a
+  toploader, slabs and sealed product show as their photo. Click any card to
+  open it with a holo tilt and its market data.
+- **Prices**: market value and price paid are entered per item; the app
+  totals them per bin and overall and shows the gain. They aren't fetched
+  from a price feed.
 - **Items**: "Add item" on a portfolio page. Pick Raw card, Graded or Sealed;
   the form shows the fields for that type (condition, grading company and
   grade, or product type). Use "Edit or move" in an item's ⋯ menu to change it

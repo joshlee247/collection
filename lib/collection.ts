@@ -160,7 +160,7 @@ export function parseItemInput(
       kind === "sealed" ? oneOf(SEALED_TYPES, raw.sealedType, "Booster Box") : "",
     purchasePrice: money(raw.purchasePrice),
     marketValue: money(raw.marketValue),
-    imageUrl: /^https?:\/\//.test(text(raw.imageUrl, 1000))
+    imageUrl: /^(https?:\/\/|\/(?!\/))\S+$/.test(text(raw.imageUrl, 1000))
       ? text(raw.imageUrl, 1000)
       : "",
     notes: text(raw.notes, 2000),

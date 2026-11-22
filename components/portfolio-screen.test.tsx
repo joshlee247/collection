@@ -109,8 +109,9 @@ test("an agent can find every control on a bin's page", () => {
   const labels = components.map((entry) => entry.label)
   for (const label of [
     "Add item",
-    "Search items",
+    "Search collection",
     "Show",
+    "Layout",
     "Include items in sub-portfolios",
     "Quantity of Evolving Skies",
     "Actions for Evolving Skies",
@@ -125,22 +126,22 @@ test("search, kind filter and the sub-portfolio switch narrow the list", async (
   renderScreen()
   const list = () => screen.getByRole("list", { name: "Items in Sealed" })
 
-  const search = await agent.act({ steps: [{ ref: "Search items", action: "setValue", args: ["zenith"] }] })
+  const search = await agent.act({ steps: [{ ref: "Search collection", action: "setValue", args: ["zenith"] }] })
   expect(search.ok, search.error?.message).toBe(true)
   expect(within(list()).getAllByRole("listitem")).toHaveLength(1)
   expect(within(list()).getByText("Crown Zenith")).toBeTruthy()
 
-  await agent.act({ steps: [{ ref: "Search items", action: "setValue", args: [""] }] })
-  const raw = await agent.act({ steps: [{ ref: "Show", action: "setValue", args: ["Raw card"] }] })
+  await agent.act({ steps: [{ ref: "Search collection", action: "setValue", args: [""] }] })
+  const raw = await agent.act({ steps: [{ ref: "Show", action: "setValue", args: ["Raw"] }] })
   expect(raw.ok, raw.error?.message).toBe(true)
-  expect(screen.getByText("No items match those filters.")).toBeTruthy()
+  expect(screen.getByText("No matches.")).toBeTruthy()
 
   await agent.act({ steps: [{ ref: "Show", action: "setValue", args: ["All"] }] })
   const nested = await agent.act({
     steps: [{ ref: "Include items in sub-portfolios", action: "toggle" }],
   })
   expect(nested.ok, nested.error?.message).toBe(true)
-  expect(screen.getByText("No items match those filters.")).toBeTruthy()
+  expect(screen.getByText("Nothing here yet.")).toBeTruthy()
 })
 
 test("stepping a quantity saves it once the taps stop", async () => {
