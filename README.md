@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Card Vault
 
-## Getting Started
+Track a Pokémon card collection by where it's physically stored. Raw cards,
+graded slabs and sealed product live in **portfolios** (a bin, binder or
+shelf), and portfolios can hold other portfolios, like `Sealed → Bin 1, 2, 3`.
+Every portfolio has a QR code: stick it on the bin, scan it with your phone,
+and tap − or + to update what's inside.
 
-First, run the development server:
+Built with Next.js 16 and [ui-sdk](https://ui-sdk.dev) components.
+
+## Getting started
 
 ```bash
+npm install
+npm run seed   # optional: demo data with Sealed → Bin 1–3, slabs and a binder
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Using it
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Portfolios**: create one from the sidebar. Choose "Inside" to nest it
+  under another. A parent's page totals everything in its sub-portfolios, and
+  can list their items too.
+- **Items**: "Add item" on a portfolio page. Pick Raw card, Graded or Sealed;
+  the form shows the fields for that type (condition, grading company and
+  grade, or product type). Use "Edit or move" in an item's ⋯ menu to change it
+  or move it to another bin.
+- **Quick changes**: the − and + steppers save after a short pause. Taking the
+  last one out removes the item, with Undo in the toast that appears.
+- **QR labels**: "QR code" on a portfolio shows the code, lets you copy the
+  link or download an SVG, and "Print label" opens a 3.5 × 2 in label.
 
-## Learn More
+## Scanning from your phone
 
-To learn more about Next.js, take a look at the following resources:
+The QR code holds the address you opened the app at. For a phone to reach it,
+run the app somewhere your phone can see (your computer's LAN address, or a
+deployment) and set the public address before printing labels:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+NEXT_PUBLIC_APP_URL=http://192.168.1.20:3000 npm run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Data
 
-## Deploy on Vercel
+Everything is stored in `data/collection.json` (ignored by git). Set
+`COLLECTION_DATA_FILE` to keep it elsewhere, and back that file up. The app
+has no sign-in: anyone who can reach it can edit the collection, so keep it on
+your home network or add authentication before putting it on the internet.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Scripts
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Command             | What it does                         |
+| ------------------- | ------------------------------------ |
+| `npm run dev`       | Development server                   |
+| `npm run build`     | Production build                     |
+| `npm start`         | Serve the production build           |
+| `npm test`          | Unit and interface tests (Vitest)    |
+| `npm run typecheck` | TypeScript                           |
+| `npm run seed`      | Write demo data (`--force` replaces) |
