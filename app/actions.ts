@@ -15,6 +15,7 @@ import {
   updateItem,
   updatePortfolio,
 } from "@/lib/collection"
+import { importCollectrSealed, type CollectrProduct } from "@/lib/collectr"
 import { getCard, getCards, PricingError } from "@/lib/pokemontcg"
 import { applyQuote, quoteFrom, today } from "@/lib/pricing"
 import { mutate, readCollection } from "@/lib/store"
@@ -169,4 +170,15 @@ function validHistory(value: unknown): PricePoint[] {
           typeof point?.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(point.date) && Number.isFinite(point.market)
       )
     : []
+}
+
+export async function importFromCollectr(): Promise<
+  ActionResult<{ portfolioId: string; added: number; updated: number }>
+> {
+  const { default: products } = await import("@/imports/collectr-sealed.json")
+  return run(() =>
+    mutate((collection) =>
+      importCollectrSealed(collection, products as CollectrProduct[], { portfolioName: "Sealed", now: now() })
+    )
+  )
 }

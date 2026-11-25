@@ -95,8 +95,8 @@ login unless you set `APP_PASSCODE`.
 ## Importing from Collectr
 
 `imports/collectr-sealed.json` holds the sealed products from the Collectr
-showcase (the 30 highest-value products). Add them to a top-level "Sealed"
-portfolio with:
+showcase (the 30 highest-value products). On the deployed site, sign in and
+open `/import`, then press Import. From the command line:
 
 ```bash
 # Locally (data/collection.json):
