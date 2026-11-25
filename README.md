@@ -71,12 +71,33 @@ POKEMONTCG_API_KEY=your-key npm run dev
 The API sometimes answers with server errors; requests are retried, and if
 prices can't be fetched, the last known values are kept.
 
+## Deploying to Vercel
+
+1. In Vercel, **Add New → Project**, import `joshlee247/collection` and deploy. The
+   first deploy shows the login page and won't let anyone in yet; that's expected.
+2. **Storage → Create Database → Neon (Postgres)**, and connect it to this project.
+   That sets `DATABASE_URL`. The app creates its tables on first use.
+3. **Settings → Environment Variables**: add `APP_PASSCODE` (your passcode) and
+   `SESSION_SECRET` (any long random string), then redeploy.
+4. Open the site, sign in, and print fresh QR labels from it, since labels
+   carry the address they were printed from.
+
+To copy an existing local collection into the database, pull the connection
+string (Vercel → Storage → your database → `.env.local`) and run:
+
+```bash
+DATABASE_URL="postgres://…" npm run db:import -- data/collection.json
+```
+
+Without a passcode a deployment stays locked. Locally, the app runs without a
+login unless you set `APP_PASSCODE`.
+
 ## Data
 
-Everything is stored in `data/collection.json` (ignored by git). Set
-`COLLECTION_DATA_FILE` to keep it elsewhere, and back that file up. The app
-has no sign-in: anyone who can reach it can edit the collection, so keep it on
-your home network or add authentication before putting it on the internet.
+Deployed, everything is stored in Postgres (`DATABASE_URL`). Locally, without
+a database, it's stored in `data/collection.json` (ignored by git). Set
+`COLLECTION_DATA_FILE` to keep it elsewhere, and back that file up. Signing in
+with `APP_PASSCODE` keeps a device signed in for 180 days.
 
 ## Scripts
 

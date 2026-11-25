@@ -9,10 +9,11 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@ui-sdk/react/drawer"
-import { FolderPlusIcon, HouseIcon, LibraryBigIcon, PlusIcon, XIcon } from "lucide-react"
+import { FolderPlusIcon, HouseIcon, LibraryBigIcon, LogOutIcon, PlusIcon, XIcon } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
+import { logout } from "@/app/login/actions"
 import type { NavData } from "@/lib/queries"
 import type { TreeNode } from "@/lib/types"
 import { cx } from "./card"
@@ -34,7 +35,7 @@ function navLink(active: boolean) {
   )
 }
 
-export function TopNav({ data }: { data: NavData }) {
+export function TopNav({ data, canSignOut = false }: { data: NavData; canSignOut?: boolean }) {
   const pathname = usePathname()
   const dialogs = useDialogs()
   const current = pathname.match(/^\/p\/([^/]+)/)?.[1]
@@ -84,6 +85,13 @@ export function TopNav({ data }: { data: NavData }) {
             >
               <PlusIcon aria-hidden="true" />
             </Button>
+            {canSignOut && (
+              <form action={logout}>
+                <Button type="submit" data-variant="ghost" aria-label="Sign out">
+                  <LogOutIcon aria-hidden="true" />
+                </Button>
+              </form>
+            )}
           </div>
         </div>
       </nav>

@@ -1,6 +1,7 @@
 "use server"
 
 import { refresh } from "next/cache"
+import { unstable_rethrow } from "next/navigation"
 import {
   CollectionError,
   addItem,
@@ -29,6 +30,7 @@ async function run<T>(work: () => Promise<T>): Promise<ActionResult<T>> {
     refresh()
     return { ok: true, data }
   } catch (error) {
+    unstable_rethrow(error)
     if (error instanceof CollectionError || error instanceof PricingError) {
       return { ok: false, error: error.message }
     }

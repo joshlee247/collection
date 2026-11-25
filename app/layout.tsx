@@ -4,7 +4,9 @@ import { Suspense } from "react"
 import { AppOverlays } from "@/components/app-overlays"
 import { DialogsProvider } from "@/components/dialogs-context"
 import { MobileDock, TopNav } from "@/components/nav-frame"
+import { hasSession } from "@/lib/auth"
 import { getNavData } from "@/lib/queries"
+import { authConfig } from "@/lib/session"
 import "./globals.css"
 
 const inter = Inter({
@@ -24,10 +26,11 @@ export const viewport: Viewport = {
 }
 
 async function Navigation() {
+  if (!(await hasSession())) return null
   const data = await getNavData()
   return (
     <>
-      <TopNav data={data} />
+      <TopNav data={data} canSignOut={authConfig().enabled} />
       <MobileDock data={data} />
     </>
   )
