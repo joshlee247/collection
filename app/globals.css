@@ -412,3 +412,108 @@ a[data-slot="button"] {
     color: black;
   }
 }
+
+/* A slab with depth: front, back and four edges, turned by --rx and --ry. */
+.slab-3d {
+  --depth: 7cqw;
+  --corner: 2.5cqw;
+}
+
+.slab-3d__scene {
+  perspective: 1600px;
+}
+
+.slab-3d__body {
+  transform-style: preserve-3d;
+  transform: rotateX(var(--rx, -6deg)) rotateY(var(--ry, -18deg));
+  will-change: transform;
+}
+
+.slab-3d__face {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--corner);
+  overflow: hidden;
+  backface-visibility: hidden;
+}
+
+.slab-3d__front {
+  transform: translateZ(calc(var(--depth) / 2));
+}
+
+.slab-3d__back {
+  transform: rotateY(180deg) translateZ(calc(var(--depth) / 2));
+}
+
+.slab-3d__shine {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      105deg,
+      transparent 30%,
+      rgb(255 255 255 / 0.32) 46%,
+      rgb(255 255 255 / 0.08) 54%,
+      transparent 70%
+    ),
+    linear-gradient(rgb(0 0 0 / calc(var(--shade, 0) * 0.45)), rgb(0 0 0 / calc(var(--shade, 0) * 0.45)));
+  background-size: 300% 100%, 100% 100%;
+  background-position: var(--shine, 50%) 0, 0 0;
+  mix-blend-mode: soft-light;
+}
+
+.slab-3d__edge {
+  position: absolute;
+}
+
+.slab-3d__edge--left,
+.slab-3d__edge--right {
+  top: var(--corner);
+  bottom: var(--corner);
+  left: 50%;
+  width: var(--depth);
+  margin-left: calc(var(--depth) / -2);
+}
+
+.slab-3d__edge--left {
+  transform: rotateY(-90deg) translateZ(50cqw);
+}
+
+.slab-3d__edge--right {
+  transform: rotateY(90deg) translateZ(50cqw);
+}
+
+.slab-3d__edge--top,
+.slab-3d__edge--bottom {
+  left: var(--corner);
+  right: var(--corner);
+  top: 50%;
+  height: var(--depth);
+  margin-top: calc(var(--depth) / -2);
+  background-image: none;
+}
+
+.slab-3d__edge--top {
+  transform: rotateX(90deg) translateZ(calc(500cqw / 6));
+  background-color: oklch(0.92 0 0 / 0.95);
+}
+
+.slab-3d__edge--bottom {
+  transform: rotateX(-90deg) translateZ(calc(500cqw / 6));
+  background-color: oklch(0.7 0 0 / 0.95);
+}
+
+.slab-3d[data-style="tag"] .slab-3d__edge--top {
+  background-color: oklch(0.3 0 0);
+}
+
+.slab-3d[data-style="tag"] .slab-3d__edge--bottom {
+  background-color: oklch(0.14 0 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slab-3d__body {
+    will-change: auto;
+  }
+}

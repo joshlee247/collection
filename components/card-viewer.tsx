@@ -19,6 +19,7 @@ import { Change } from "./card"
 import { useDialogs, type ViewerPayload } from "./dialogs-context"
 import { removeWithUndo, QuantityStepper } from "./item-row"
 import { HoloCard } from "./item-visuals"
+import { Slab3D } from "./slab-3d"
 import { Sparkline } from "./sparkline"
 
 function Figure({ label, children }: { label: string; children: React.ReactNode }) {
@@ -97,7 +98,7 @@ export function CardViewer({ items }: { items: LocatedItem[] }) {
 
               <div className="grid place-items-center bg-black/40 px-10 py-10 md:px-8">
                 <div className={item.kind === "card" ? "w-full max-w-64" : "w-full max-w-72"}>
-                  <HoloCard item={item} />
+                  {item.kind === "graded" ? <Slab3D item={item} /> : <HoloCard item={item} />}
                 </div>
               </div>
 

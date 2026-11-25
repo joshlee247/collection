@@ -16,9 +16,9 @@ export function KindBadge({ kind }: { kind: ItemKind }) {
   )
 }
 
-type VisualItem = Pick<Item, "kind" | "name" | "set" | "number" | "imageUrl" | "grader" | "grade" | "certNumber" | "sealedType">
+export type VisualItem = Pick<Item, "kind" | "name" | "set" | "number" | "imageUrl" | "grader" | "grade" | "certNumber" | "sealedType">
 
-function CardFace({ item, className }: { item: VisualItem; className?: string }) {
+export function CardFace({ item, className }: { item: VisualItem; className?: string }) {
   if (item.imageUrl) {
     return (
       <img
@@ -105,7 +105,7 @@ function hashBits(text: string, count: number) {
   })
 }
 
-function Barcode({ seed, className }: { seed: string; className?: string }) {
+export function Barcode({ seed, className }: { seed: string; className?: string }) {
   return (
     <span aria-hidden="true" className={cx("flex items-stretch gap-[0.6cqw]", className)}>
       {hashBits(seed, 30).map((bits, i) => (
@@ -132,7 +132,7 @@ function DotCode({ seed }: { seed: string }) {
 }
 
 // A photo of the whole slab is taller than a bare card (about 3:5 against 63:88), so it shows as is.
-function useIsSlabPhoto(url: string) {
+export function useIsSlabPhoto(url: string) {
   const [shape, setShape] = useState<{ url: string; photo: boolean } | null>(null)
   useEffect(() => {
     if (!url) return
@@ -150,8 +150,8 @@ function useIsSlabPhoto(url: string) {
   return shape?.url === url ? shape.photo : /slab/i.test(url)
 }
 
-type SlabStyle = "psa" | "tag" | "clear"
-const slabStyle = (grader: string): SlabStyle => (grader === "PSA" ? "psa" : grader === "TAG" ? "tag" : "clear")
+export type SlabStyle = "psa" | "tag" | "clear"
+export const slabStyle = (grader: string): SlabStyle => (grader === "PSA" ? "psa" : grader === "TAG" ? "tag" : "clear")
 
 function SlabLabel({ item, style }: { item: VisualItem; style: SlabStyle }) {
   const grader = item.grader && item.grader !== "Other" ? item.grader : "Graded"
@@ -247,33 +247,52 @@ export function Slab({ item }: { item: VisualItem }) {
       </span>
     )
   }
-  const style = slabStyle(item.grader)
   return (
     <span className="block w-full [container-type:inline-size]">
+      <SlabCase item={item} className="transition-transform duration-300 group-hover/tile:-translate-y-1" />
+    </span>
+  )
+}
+
+export const SLAB_CASE = {
+  tag: "bg-[linear-gradient(160deg,oklch(0.24_0_0),oklch(0.1_0_0)_45%,oklch(0.17_0_0))] shadow-[inset_0_0_0_0.6cqw_oklch(0.4_0_0),inset_0_0_0_2.2cqw_oklch(0.14_0_0),inset_0_0_0_2.6cqw_oklch(0.32_0_0)]",
+  light:
+    "bg-[linear-gradient(160deg,oklch(0.98_0_0),oklch(0.88_0_0)_50%,oklch(0.95_0_0))] shadow-[inset_0_0_0_0.6cqw_oklch(1_0_0),inset_0_0_0_2.2cqw_oklch(0.9_0_0),inset_0_0_0_2.6cqw_oklch(0.78_0_0)]",
+}
+
+export function CardWindow({ style, children }: { style: SlabStyle; children: React.ReactNode }) {
+  return (
+    <span
+      className={cx(
+        "relative mx-auto block w-[92%] rounded-[2cqw] p-[2.5cqw]",
+        style === "tag" ? "bg-black/60 shadow-[inset_0_0_0_0.5cqw_oklch(0.3_0_0)]" : "bg-white/70 shadow-[inset_0_0_0_0.5cqw_oklch(0.85_0_0)]"
+      )}
+    >
+      <span className="block aspect-[63/88] [container-type:inline-size]">{children}</span>
       <span
-        className={cx(
-          "relative flex w-full flex-col gap-[5cqw] rounded-[4cqw] p-[4cqw] pb-[7cqw] transition-transform duration-300 group-hover/tile:-translate-y-1",
-          style === "tag"
-            ? "bg-[linear-gradient(160deg,oklch(0.24_0_0),oklch(0.1_0_0)_45%,oklch(0.17_0_0))] shadow-[inset_0_0_0_0.6cqw_oklch(0.4_0_0),inset_0_0_0_2.2cqw_oklch(0.14_0_0),inset_0_0_0_2.6cqw_oklch(0.32_0_0)]"
-            : "bg-[linear-gradient(160deg,oklch(0.98_0_0),oklch(0.88_0_0)_50%,oklch(0.95_0_0))] shadow-[inset_0_0_0_0.6cqw_oklch(1_0_0),inset_0_0_0_2.2cqw_oklch(0.9_0_0),inset_0_0_0_2.6cqw_oklch(0.78_0_0)]"
-        )}
-      >
-        <SlabLabel item={item} style={style} />
-        <span
-          className={cx(
-            "relative mx-auto w-[92%] rounded-[2cqw] p-[2.5cqw]",
-            style === "tag" ? "bg-black/60 shadow-[inset_0_0_0_0.5cqw_oklch(0.3_0_0)]" : "bg-white/70 shadow-[inset_0_0_0_0.5cqw_oklch(0.85_0_0)]"
-          )}
-        >
-          <span className="block aspect-[63/88] [container-type:inline-size]">
-            <CardFace item={item} />
-          </span>
-          <span
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 rounded-[inherit] bg-[linear-gradient(125deg,oklch(1_0_0/18%),transparent_30%,transparent_70%,oklch(1_0_0/8%))]"
-          />
-        </span>
-      </span>
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 rounded-[inherit] bg-[linear-gradient(125deg,oklch(1_0_0/18%),transparent_30%,transparent_70%,oklch(1_0_0/8%))]"
+      />
+    </span>
+  )
+}
+
+// The front of a drawn slab. Sizes are in cqw, so it needs an inline-size container around it.
+export function SlabCase({ item, fixed = false, className }: { item: VisualItem; fixed?: boolean; className?: string }) {
+  const style = slabStyle(item.grader)
+  return (
+    <span
+      className={cx(
+        "relative flex w-full flex-col gap-[5cqw] p-[4cqw]",
+        fixed ? "h-full justify-between overflow-hidden rounded-[2.5cqw] pb-[6cqw]" : "rounded-[4cqw] pb-[7cqw]",
+        SLAB_CASE[style === "tag" ? "tag" : "light"],
+        className
+      )}
+    >
+      <SlabLabel item={item} style={style} />
+      <CardWindow style={style}>
+        <CardFace item={item} />
+      </CardWindow>
     </span>
   )
 }

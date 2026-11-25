@@ -36,3 +36,15 @@ describe("slabs", () => {
     expect(screen.queryByText("PSA")).toBeNull()
   })
 })
+
+describe("3D slab", () => {
+  test("shows the card on the front and can be turned from the keyboard", async () => {
+    const { Slab3D } = await import("./slab-3d")
+    const { container } = render(<Slab3D item={slab} />)
+    const model = screen.getByRole("group", { name: /PSA 10 Mew ex/ })
+    expect(model.getAttribute("tabindex")).toBe("0")
+    expect(container.querySelector(`.slab-3d__front img[src="${slab.imageUrl}"]`)).toBeTruthy()
+    expect(container.querySelector(".slab-3d__back")?.textContent).toContain("Cert 98765432")
+    expect(container.querySelectorAll(".slab-3d__edge")).toHaveLength(4)
+  })
+})
