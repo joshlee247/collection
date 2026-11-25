@@ -1,7 +1,7 @@
 // Copies a local collection file into the Postgres database at DATABASE_URL.
 // Usage: DATABASE_URL=postgres://… npm run db:import -- [data/collection.json]
 import { readFile } from "node:fs/promises"
-import { Pool } from "@neondatabase/serverless"
+import { neonDb } from "../lib/neon"
 import { normalizeCollection } from "../lib/collection"
 import { createPostgresStore } from "../lib/postgres"
 
@@ -13,24 +13,8 @@ if (!url) {
 const file = process.argv[2] ?? "data/collection.json"
 const incoming = normalizeCollection(JSON.parse(await readFile(file, "utf8")))
 
-const pool = new Pool({ connectionString: url })
-const store = createPostgresStore({
-  query: (text, params) => pool.query(text, params),
-  async transaction(work) {
-    const client = await pool.connect()
-    try {
-      await client.query("BEGIN")
-      const result = await work(client)
-      await client.query("COMMIT")
-      return result
-    } catch (error) {
-      await client.query("ROLLBACK")
-      throw error
-    } finally {
-      client.release()
-    }
-  },
-})
+const db = neonDb(url)
+const store = createPostgresStore(db)
 
 const existing = await store.read()
 if (existing.portfolios.length || existing.items.length) {
@@ -45,4 +29,4 @@ await store.mutate((collection) => {
   collection.pricesRefreshedAt = incoming.pricesRefreshedAt
 })
 console.log(`Imported ${incoming.portfolios.length} portfolios and ${incoming.items.length} items from ${file}.`)
-await pool.end()
+await db.end()

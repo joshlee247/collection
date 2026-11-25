@@ -1,36 +1,15 @@
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises"
 import path from "node:path"
-import { Pool } from "@neondatabase/serverless"
 import { connection } from "next/server"
 import { requireSession } from "./auth"
 import { emptyCollection, normalizeCollection } from "./collection"
-import { createPostgresStore, type Db } from "./postgres"
+import { neonDb } from "./neon"
+import { createPostgresStore } from "./postgres"
 import type { Collection } from "./types"
 
 type Store = {
   read(): Promise<Collection>
   mutate<T>(change: (collection: Collection) => T): Promise<T>
-}
-
-function neonDb(connectionString: string): Db {
-  const pool = new Pool({ connectionString, max: 4 })
-  return {
-    query: (text, params) => pool.query(text, params),
-    async transaction(work) {
-      const client = await pool.connect()
-      try {
-        await client.query("BEGIN")
-        const result = await work(client)
-        await client.query("COMMIT")
-        return result
-      } catch (error) {
-        await client.query("ROLLBACK").catch(() => {})
-        throw error
-      } finally {
-        client.release()
-      }
-    },
-  }
 }
 
 // The data file lives outside the bundle, so the build shouldn't trace it.

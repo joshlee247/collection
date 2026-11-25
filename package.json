@@ -10,7 +10,8 @@
     "seed": "node scripts/seed.mjs",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "db:import": "tsx scripts/db-import.mts"
+    "db:import": "tsx scripts/db-import.mts",
+    "import:collectr": "tsx scripts/import-collectr.mts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.2.1",

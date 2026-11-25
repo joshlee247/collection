@@ -92,6 +92,23 @@ DATABASE_URL="postgres://…" npm run db:import -- data/collection.json
 Without a passcode a deployment stays locked. Locally, the app runs without a
 login unless you set `APP_PASSCODE`.
 
+## Importing from Collectr
+
+`imports/collectr-sealed.json` holds the sealed products from the Collectr
+showcase (the 30 highest-value products). Add them to a top-level "Sealed"
+portfolio with:
+
+```bash
+# Locally (data/collection.json):
+npm run import:collectr -- imports/collectr-sealed.json
+# Into the deployed database:
+DATABASE_URL="postgres://…" npm run import:collectr -- imports/collectr-sealed.json
+```
+
+Running it again updates quantities and prices instead of adding duplicates,
+and leaves items where you've moved them. Purchase prices aren't in Collectr's
+showcase, so they're left blank.
+
 ## Data
 
 Deployed, everything is stored in Postgres (`DATABASE_URL`). Locally, without
